@@ -4,6 +4,8 @@ import fs from 'fs';
 import Database from 'better-sqlite3';
 import { exec } from 'node:child_process';
 import { registerDatabaseIpcHandlers } from './ipc/database';
+// 【新增】导入新的迁移器模块
+import { runMigrations } from './lib/migrator';
 
 
 // --- 【关键修正】使用更健壮的方式加载原生插件 ---
@@ -53,37 +55,41 @@ const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 console.log(`Database connection opened successfully at: ${dbPath}`);
 
-// --- 数据库初始化函数 (关键修改) ---
-function initializeDatabase() {
-  const table = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = 'books'").get();
-  if (table) {
-    console.log('[main.ts] Database tables already exist. Skipping initialization.');
-    return;
-  }
-  try {
-    console.log('[main.ts] Database tables not found. Initializing schema from schema.sql...');
-    
-    // 修正 schema.sql 的路径
+// --- 【修改】数据库初始化与迁移流程 ---
+try {
+  // 步骤 1: 确保基础 schema 存在 (仅在数据库完全不存在时)
+  const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = 'books'").get();
+  if (!tableCheck) {
+    console.log('[main.ts] Database appears to be new. Initializing base schema...');
     const isDev = !app.isPackaged;
     const schemaPath = isDev
       ? path.join(app.getAppPath(), 'database/schema.sql')
+      // 【修正】生产环境中，schema.sql 也应被打包到 resources 目录
       : path.join(process.resourcesPath, 'database/schema.sql');
-
-    console.log('>>> [main.ts] 正在尝试读取SQL文件，路径是:', schemaPath);
+    
     if (!fs.existsSync(schemaPath)) {
-        throw new Error(`Schema file not found at ${schemaPath}`);
+      throw new Error(`Base schema file not found at ${schemaPath}`);
     }
     const schemaSql = fs.readFileSync(schemaPath, 'utf8');
     db.exec(schemaSql);
-    console.log('[main.ts] Database schema initialization complete!');
-  } catch (error) {
-    console.error("[main.ts] Failed to initialize database schema from file:", error);
-    dialog.showErrorBox('数据库初始化失败', `无法创建数据库表，请检查 database/schema.sql 文件是否存在。\n错误: ${error.message}`);
-    app.quit();
+    console.log('[main.ts] Base schema initialized.');
   }
+
+  // 步骤 2: 运行版本化迁移
+  const isDev = !app.isPackaged;
+  const migrationsPath = isDev
+    ? path.join(app.getAppPath(), 'database/migrations')
+    // 【修正】生产环境中，migrations 目录也应被打包
+    : path.join(process.resourcesPath, 'database/migrations');
+  
+  runMigrations(db, migrationsPath);
+
+} catch (error) {
+  console.error("[main.ts] Database setup failed:", error);
+  dialog.showErrorBox('数据库初始化或迁移失败', `应用无法启动。\n错误: ${error.message}`);
+  app.quit();
 }
 
-initializeDatabase();
 // --- 注册数据库 IPC 处理器 ---
 registerDatabaseIpcHandlers(db);
 

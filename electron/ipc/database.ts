@@ -76,9 +76,14 @@ export function registerDatabaseIpcHandlers(db: Database) {
     }
   });
 
+  // 【修改】更新查询逻辑以使用新的 master_grammar 结构
   ipcMain.handle('db:getGrammarByLessonId', async (event, lessonId: number) => {
     try {
-      const stmt = db.prepare('SELECT * FROM grammar WHERE lesson_id = ?');
+      const stmt = db.prepare(`
+        SELECT mg.* FROM master_grammar mg
+        JOIN lesson_grammar_link lgl ON mg.id = lgl.master_grammar_id
+        WHERE lgl.lesson_id = ?
+      `);
       return stmt.all(lessonId);
     } catch (error) {
       console.error(`Failed to get grammar for lesson ID ${lessonId}:`, error);
@@ -131,13 +136,14 @@ export function registerDatabaseIpcHandlers(db: Database) {
     return getTodaysReviewCardsLogic(limit);
   });
 
+  // 【修改】更新批量更新逻辑以指向 master_grammar
   ipcMain.handle('db:batchUpdateReviewItems', async (event, itemsToUpdate) => {
     const transaction = db.transaction((items) => {
       const updateVocabStmt = db.prepare(
         'UPDATE master_vocabulary SET mastery_level = ?, last_reviewed_at = ?, next_review_at = ? WHERE id = ?'
       );
       const updateGrammarStmt = db.prepare(
-        'UPDATE grammar SET mastery_level = ?, last_reviewed_at = ?, next_review_at = ? WHERE id = ?'
+        'UPDATE master_grammar SET mastery_level = ?, last_reviewed_at = ?, next_review_at = ? WHERE id = ?'
       );
       for (const item of items) {
         const now = new Date();
@@ -158,10 +164,11 @@ export function registerDatabaseIpcHandlers(db: Database) {
     }
   });
 
+  // 【修改】更新查询逻辑以使用 master_grammar
   async function getTodaysReviewGrammarLogic(limit = 10) {
     try {
         const now = new Date().toISOString();
-        const sql = `SELECT * FROM grammar WHERE next_review_at <= ? ORDER BY next_review_at ASC LIMIT ?`;
+        const sql = `SELECT * FROM master_grammar WHERE next_review_at <= ? ORDER BY next_review_at ASC LIMIT ?`;
         const stmt = db.prepare(sql);
         return stmt.all(now, Number(limit));
     } catch (error) {
@@ -191,11 +198,12 @@ export function registerDatabaseIpcHandlers(db: Database) {
     }
   });
 
+  // 【修改】更新函数以指向 master_grammar
   ipcMain.handle('db:updateGrammarMasteryLevel', async (event, grammarId: number, newLevel: number) => {
     try {
       const now = new Date();
       const nextReview = calculateNextReviewDate(newLevel);
-      const stmt = db.prepare('UPDATE grammar SET mastery_level = ?, last_reviewed_at = ?, next_review_at = ? WHERE id = ?');
+      const stmt = db.prepare('UPDATE master_grammar SET mastery_level = ?, last_reviewed_at = ?, next_review_at = ? WHERE id = ?');
       stmt.run(newLevel, now.toISOString(), nextReview.toISOString(), grammarId);
       return { success: true };
     } catch (error) {
@@ -247,6 +255,7 @@ export function registerDatabaseIpcHandlers(db: Database) {
     }
   });
 
+  // 【修改】重构导入逻辑以支持中央语法库
   ipcMain.handle('importer:importBook', async (event, bookData: any) => {
     try {
       const checkStmt = db.prepare('SELECT id FROM books WHERE title = ?');
@@ -262,16 +271,26 @@ export function registerDatabaseIpcHandlers(db: Database) {
     }
 
     const transaction = db.transaction(() => {
+      // --- 准备所有 SQL 语句 ---
       const insertBook = db.prepare('INSERT INTO books (title, description) VALUES (?, ?)');
       const insertLesson = db.prepare('INSERT INTO lessons (book_id, lesson_number, title) VALUES (?, ?, ?)');
+      
+      // 词汇
       const findMasterVocabulary = db.prepare('SELECT id FROM master_vocabulary WHERE word = ?');
-      const insertMasterVocabulary = db.prepare('INSERT INTO master_vocabulary (word, kana, meaning, part_of_speech) VALUES (?, ?, ?, ?)');
+      const insertMasterVocabulary = db.prepare('INSERT INTO master_vocabulary (word, kana, meaning, part_of_speech, level) VALUES (?, ?, ?, ?, ?)');
       const linkLessonVocabulary = db.prepare('INSERT INTO lesson_vocabulary_link (lesson_id, master_vocabulary_id) VALUES (?, ?)');
-      const insertGrammar = db.prepare('INSERT INTO grammar (lesson_id, title, explanation) VALUES (?, ?, ?)');
+      
+      // 语法 (新)
+      const findMasterGrammar = db.prepare('SELECT id FROM master_grammar WHERE title = ?');
+      const insertMasterGrammar = db.prepare('INSERT INTO master_grammar (title, explanation, level) VALUES (?, ?, ?)');
+      const linkLessonGrammar = db.prepare('INSERT INTO lesson_grammar_link (lesson_id, master_grammar_id) VALUES (?, ?)');
+
+      // 其他
       const insertSentence = db.prepare('INSERT INTO sentences (vocabulary_id, grammar_id, sentence_jp, sentence_cn) VALUES (?, ?, ?, ?)');
       const insertText = db.prepare('INSERT INTO texts (lesson_id, type, content_jp, content_cn) VALUES (?, ?, ?, ?)');
       const insertArticle = db.prepare('INSERT INTO articles (lesson_id, title, content_jp, content_cn, source, tags) VALUES (?, ?, ?, ?, ?, ?)');
 
+      // --- 开始执行 ---
       const bookResult = insertBook.run(bookData.title, bookData.description);
       const bookId = bookResult.lastInsertRowid as number;
 
@@ -279,6 +298,7 @@ export function registerDatabaseIpcHandlers(db: Database) {
         const lessonResult = insertLesson.run(bookId, lessonData.lesson_number, lessonData.title);
         const lessonId = lessonResult.lastInsertRowid as number;
 
+        // 处理词汇
         if (lessonData.vocabulary) {
           for (const vocab of lessonData.vocabulary) {
             let masterVocabId: number;
@@ -286,31 +306,43 @@ export function registerDatabaseIpcHandlers(db: Database) {
             if (existingVocab) {
               masterVocabId = existingVocab.id;
             } else {
-              const newVocabResult = insertMasterVocabulary.run(vocab.word, vocab.kana, vocab.meaning, vocab.part_of_speech);
+              const newVocabResult = insertMasterVocabulary.run(vocab.word, vocab.kana, vocab.meaning, vocab.part_of_speech, vocab.level || null);
               masterVocabId = newVocabResult.lastInsertRowid as number;
             }
             linkLessonVocabulary.run(lessonId, masterVocabId);
           }
         }
 
+        // 处理语法 (新逻辑)
         if (lessonData.grammar) {
           for (const grammar of lessonData.grammar) {
-            const grammarResult = insertGrammar.run(lessonId, grammar.title, grammar.explanation);
-            const grammarId = grammarResult.lastInsertRowid as number;
+            let masterGrammarId: number;
+            const existingGrammar = findMasterGrammar.get<{ id: number }>(grammar.title);
+            if (existingGrammar) {
+              masterGrammarId = existingGrammar.id;
+            } else {
+              const newGrammarResult = insertMasterGrammar.run(grammar.title, grammar.explanation, grammar.level || null);
+              masterGrammarId = newGrammarResult.lastInsertRowid as number;
+            }
+            linkLessonGrammar.run(lessonId, masterGrammarId);
+            
+            // 处理例句
             if (grammar.examples) {
               for (const example of grammar.examples) {
-                insertSentence.run(null, grammarId, example.jp, example.cn);
+                insertSentence.run(null, masterGrammarId, example.jp, example.cn);
               }
             }
           }
         }
 
+        // 处理课文
         if (lessonData.texts) {
           for (const text of lessonData.texts) {
             insertText.run(lessonId, text.type, text.content_jp, text.content_cn || null);
           }
         }
 
+        // 处理文章
         if (lessonData.articles) {
           for (const article of lessonData.articles) {
             insertArticle.run(lessonId, article.title, article.content_jp, article.content_cn || null, article.source || null, (article.tags ? JSON.stringify(article.tags) : null));
@@ -335,13 +367,40 @@ export function registerDatabaseIpcHandlers(db: Database) {
       const stmt = db.prepare(`
         INSERT INTO user_progress (entity_id, entity_type, status) 
         VALUES (?, 'lesson', 'completed')
-        ON CONFLICT(entity_id, entity_type) DO NOTHING
+        ON CONFLICT(entity_id, entity_type) DO UPDATE SET status = 'completed'
       `);
       stmt.run(lessonId);
       console.log(`[IPC] Lesson ${lessonId} marked as complete.`);
       return { success: true };
     } catch (error) {
       console.error(`[IPC ERROR] Failed to mark lesson ${lessonId} as complete:`, error);
+      throw error;
+    }
+  });
+
+  // 【新增】实现“标记为未完成”功能
+  ipcMain.handle('db:unmarkLessonAsComplete', async (event, lessonId: number) => {
+    try {
+      // 从 user_progress 表中删除“已完成”的记录
+      const stmt = db.prepare(`
+        DELETE FROM user_progress 
+        WHERE entity_id = ? AND entity_type = 'lesson' AND status = 'completed'
+      `);
+      const result = stmt.run(lessonId);
+      
+      // 同时，为了确保用户可以重新学习，我们将它标记为“已解锁”
+      // 如果它已经是解锁状态，ON CONFLICT 会保证不会重复插入
+      const unlockStmt = db.prepare(`
+        INSERT INTO user_progress (entity_id, entity_type, status)
+        VALUES (?, 'lesson', 'unlocked')
+        ON CONFLICT(entity_id, entity_type) DO UPDATE SET status = 'unlocked'
+      `);
+      unlockStmt.run(lessonId);
+
+      console.log(`[IPC] Lesson ${lessonId} unmarked as complete and set to unlocked. Rows affected: ${result.changes}`);
+      return { success: true, rowsAffected: result.changes };
+    } catch (error) {
+      console.error(`[IPC ERROR] Failed to unmark lesson ${lessonId} as complete:`, error);
       throw error;
     }
   });
@@ -403,6 +462,7 @@ export function registerDatabaseIpcHandlers(db: Database) {
     }
   });
 
+  // 【修改】更新统计逻辑以使用 master_grammar 和 level 字段
   ipcMain.handle('db:getDashboardStats', async () => {
     try {
       const vocabStatsStmt = db.prepare(`
@@ -421,20 +481,41 @@ export function registerDatabaseIpcHandlers(db: Database) {
           SUM(CASE WHEN mastery_level = 2 THEN 1 ELSE 0 END) as mastered,
           SUM(CASE WHEN mastery_level = 1 THEN 1 ELSE 0 END) as familiar,
           SUM(CASE WHEN mastery_level = 0 THEN 1 ELSE 0 END) as unknown
-        FROM grammar
+        FROM master_grammar
       `);
       const grammarStats = grammarStatsStmt.get() as any;
 
       const completedLessonsStmt = db.prepare("SELECT COUNT(*) as count FROM user_progress WHERE entity_type = 'lesson' AND status = 'completed'");
       const completedLessons = completedLessonsStmt.get() as any;
 
-      const progressByLevel = {
-        N5: { mastered: vocabStats.mastered || 0, total: vocabStats.total || 1 },
-        N4: { mastered: 0, total: 1500 },
-        N3: { mastered: 0, total: 2500 },
-        N2: { mastered: 0, total: 4000 },
-        N1: { mastered: 0, total: 6000 },
-      };
+      // --- 为 JLPT 进度统计准备数据 ---
+      const levels = ['N5', 'N4', 'N3', 'N2', 'N1'];
+      const progressByLevel = {};
+
+      const vocabByLevelStmt = db.prepare(`
+        SELECT level, COUNT(*) as total, SUM(CASE WHEN mastery_level = 2 THEN 1 ELSE 0 END) as mastered
+        FROM master_vocabulary
+        WHERE level IS NOT NULL
+        GROUP BY level
+      `);
+      const vocabByLevel = vocabByLevelStmt.all();
+
+      const grammarByLevelStmt = db.prepare(`
+        SELECT level, COUNT(*) as total, SUM(CASE WHEN mastery_level = 2 THEN 1 ELSE 0 END) as mastered
+        FROM master_grammar
+        WHERE level IS NOT NULL
+        GROUP BY level
+      `);
+      const grammarByLevel = grammarByLevelStmt.all();
+
+      for (const level of levels) {
+        const vocabData = vocabByLevel.find(item => item.level === level) || { total: 0, mastered: 0 };
+        const grammarData = grammarByLevel.find(item => item.level === level) || { total: 0, mastered: 0 };
+        progressByLevel[level] = {
+          mastered: (vocabData.mastered || 0) + (grammarData.mastered || 0),
+          total: (vocabData.total || 0) + (grammarData.total || 0) || 1, // 避免除以 0
+        };
+      }
 
       return {
         vocabStats,

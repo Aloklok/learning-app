@@ -46,7 +46,7 @@ const CourseView: React.FC<CourseViewProps> = ({ lessonId }) => {
   const { data: vocabulary, loading: vocabularyLoading, error: vocabularyError, setData: setVocabulary } = useDatabase<VocabularyItem[]>('getVocabularyByLessonId', [lessonId]);
   const { data: grammar, loading: grammarLoading, error: grammarError, setData: setGrammar } = useDatabase<GrammarItem[]>('getGrammarByLessonId', [lessonId]);
   const { data: articles, loading: articlesLoading, error: articlesError } = useDatabase<ArticleItem[]>('getArticlesByLessonId', [lessonId]);
-  const { data: completedLessons, loading: completedLessonsLoading, error: completedLessonsError, setData: setCompletedLessons } = useDatabase<number[]>('getCompletedLessons');
+  const { data: completedLessons, loading: completedLessonsLoading, error: completedLessonsError, setData: refetchCompletedLessons } = useDatabase<number[]>('getCompletedLessons');
 
   const isLoading = bookInfoLoading || neighborLessonsLoading || textsLoading || vocabularyLoading || grammarLoading || articlesLoading || completedLessonsLoading;
   const error = bookInfoError || neighborLessonsError || textsError || vocabularyError || grammarError || articlesError || completedLessonsError;
@@ -67,42 +67,38 @@ const CourseView: React.FC<CourseViewProps> = ({ lessonId }) => {
         await window.db.updateGrammarMasteryLevel(id, newLevel);
         setGrammar(prevData => prevData ? prevData.map(item => item.id === id ? { ...item, mastery_level: newLevel } : item) : null);
       }
-      // 重新获取仪表盘统计数据
       await fetchStats();
     } catch (err) {
       console.error(`Failed to update mastery for ${type} ID ${id}:`, err);
     }
-  }, [vocabulary, grammar, fetchStats, setVocabulary, setGrammar]);
+  }, [fetchStats, setVocabulary, setGrammar]);
 
   const handleLessonCompletion = useCallback(async () => {
     if (!currentLesson) return;
     
     try {
-      await window.db.markLessonAsComplete(currentLesson.id);
-      setCompletedLessons(prevData => {
-        const newData = prevData ? [...prevData] : [];
-        if (isCompleted) {
-          return newData.filter(id => id !== currentLesson.id);
-        } else {
-          return [...newData, currentLesson.id];
-        }
-      });
-      
-      if (!isCompleted) {
-        // 重新获取仪表盘统计数据
-        await fetchStats();
+      if (isCompleted) {
+        await window.db.unmarkLessonAsComplete(currentLesson.id);
+      } else {
+        await window.db.markLessonAsComplete(currentLesson.id);
+        await window.db.unlockNextLesson(currentLesson.id);
       }
       
-      const nextLesson = neighborLessons?.find(lesson => lesson.lesson_number === currentLesson.lesson_number + 1);
-      if (nextLesson) {
-        navigate(`/course/${nextLesson.id}`);
-      } else {
-        alert('恭喜您完成了本书的所有课程！');
+      await refetchCompletedLessons();
+      await fetchStats();
+      
+      if (!isCompleted) {
+        const nextLesson = neighborLessons?.find(lesson => lesson.lesson_number === currentLesson.lesson_number + 1);
+        if (nextLesson) {
+          navigate(`/course/${nextLesson.id}`);
+        } else {
+          alert('恭喜您完成了本书的所有课程！');
+        }
       }
     } catch (err) {
       console.error("Failed to toggle lesson completion status:", err);
     }
-  }, [currentLesson, fetchStats, navigate, setCompletedLessons, neighborLessons, isCompleted]);
+  }, [currentLesson, isCompleted, fetchStats, navigate, refetchCompletedLessons, neighborLessons]);
   
   if (isLoading) {
     return (
@@ -319,7 +315,7 @@ const CourseView: React.FC<CourseViewProps> = ({ lessonId }) => {
           <LessonCompletionButton 
             isCompleted={isCompleted} 
             onToggleComplete={handleLessonCompletion} 
-            disabled={isCompleted} 
+            disabled={false}
           />
         </MKBox>
       </MKBox>

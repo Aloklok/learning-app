@@ -124,6 +124,7 @@ contextBridge.exposeInMainWorld('db', {
   // --- 新增的函数暴露 ---
   getLessonById: (lessonId: number) => ipcRenderer.invoke('db:getLessonById', lessonId),
   markLessonAsComplete: (lessonId: number) => ipcRenderer.invoke('db:markLessonAsComplete', lessonId),
+  unmarkLessonAsComplete: (lessonId: number) => ipcRenderer.invoke('db:unmarkLessonAsComplete', lessonId), // 【新增】暴露取消完成的接口
 
   getTextsByLessonId: (lessonId: number) => ipcRenderer.invoke('db:getTextsByLessonId', lessonId),
   getVocabularyByLessonId: (lessonId: number) => ipcRenderer.invoke('db:getVocabularyByLessonId', lessonId),
