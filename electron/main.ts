@@ -118,8 +118,10 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      allowRunningInsecureContent: true,
-      experimentalFeatures: true
+      allowRunningInsecureContent: false, // 禁用不安全内容
+      experimentalFeatures: false, // 禁用实验性功能
+      webSecurity: true, // 启用 web 安全特性
+      sandbox: true // 启用沙盒模式
     },
     show: false, // 初始隐藏，等待ready-to-show事件
     backgroundColor: '#f4f7fe', // 设置背景色避免白屏闪烁

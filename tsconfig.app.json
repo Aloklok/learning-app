@@ -6,11 +6,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "baseUrl": ".",
-    "paths": {
-      "@mk_assets/*": ["src/material/assets/*"],
-      "@mk_components/*": ["src/material/components/*"],
-      "@mk_examples/*": ["src/material/examples/*"]
-    },
+    "paths": {},
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,

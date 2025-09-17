@@ -10,7 +10,7 @@ import { renderFurigana } from '../utils/furigana';
 import SpeechRecognition from './SpeechRecognition';
 
 // Theme Context
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 
 interface TextItem {
   id: number;
@@ -25,7 +25,7 @@ interface TextReaderProps {
 const TextReader: React.FC<TextReaderProps> = memo(({ texts }) => {
   const [showTranslation, setShowTranslation] = useState(false);
   const [speechRecognitionTarget, setSpeechRecognitionTarget] = useState<string | null>(null);
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
 
   const getCleanTextForSpeech = useCallback((text: string = '') => text.replace(/\[.*?\]/g, ''), []);
 

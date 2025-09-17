@@ -2,11 +2,10 @@ import React from 'react';
 import { Card, LinearProgress } from '@mui/material';
 import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
-import { useThemeMode } from '../../hooks/useThemeMode';
+import { useAppTheme } from '../../hooks/useAppTheme';
 
-// Material Kit Components
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
+// MUI Components
+import { Box, Typography } from '@mui/material';
 
 // Types
 import type { ProgressByLevel } from '../../types/models';
@@ -17,7 +16,7 @@ interface JLPTProgressCardProps {
 }
 
 const JLPTProgressCard: React.FC<JLPTProgressCardProps> = ({ progressByLevel, variants }) => {
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
   const levels = ['N5', 'N4', 'N3', 'N2', 'N1'] as const;
   
   const levelColors = {
@@ -52,9 +51,9 @@ const JLPTProgressCard: React.FC<JLPTProgressCardProps> = ({ progressByLevel, va
           }
         }}
       >
-        <MKBox p={4}>
-          <MKBox mb={3} textAlign="center">
-            <MKTypography 
+        <Box sx={{ p: 4 }}>
+          <Box sx={{ mb: 3, textAlign: "center" }}>
+            <Typography 
               variant="h4" 
               fontWeight="bold" 
               sx={{
@@ -65,23 +64,23 @@ const JLPTProgressCard: React.FC<JLPTProgressCardProps> = ({ progressByLevel, va
               }}
             >
               JLPT 词汇进度 🎯
-            </MKTypography>
-            <MKTypography variant="body1" color="text.secondary" sx={{ opacity: 0.8 }}>
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ opacity: 0.8 }}>
               日本语能力测试各级别掌握情况
-            </MKTypography>
-          </MKBox>
+            </Typography>
+          </Box>
 
-          <MKBox display="flex" flexDirection="column" gap={3}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {levels.map((level) => {
               const progress = progressByLevel[level];
               const percentage = progress.total > 0 ? (progress.mastered / progress.total) * 100 : 0;
               const colors = levelColors[level];
               
               return (
-                <MKBox key={level}>
-                  <MKBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                    <MKBox display="flex" alignItems="center" gap={2}>
-                      <MKBox
+                <Box key={level}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Box
                         sx={{
                           width: 40,
                           height: 40,
@@ -102,7 +101,7 @@ const JLPTProgressCard: React.FC<JLPTProgressCardProps> = ({ progressByLevel, va
                           }
                         }}
                       >
-                        <MKTypography 
+                        <Typography 
                           variant="body2" 
                           fontWeight="bold"
                           sx={{ 
@@ -114,16 +113,16 @@ const JLPTProgressCard: React.FC<JLPTProgressCardProps> = ({ progressByLevel, va
                           }}
                         >
                           {level}
-                        </MKTypography>
-                      </MKBox>
-                      <MKTypography variant="h6" fontWeight="bold" color="text.primary">
+                        </Typography>
+                      </Box>
+                      <Typography variant="h6" fontWeight="bold" color="text.primary">
                         {level} 级别
-                      </MKTypography>
-                    </MKBox>
-                    <MKTypography variant="body2" color="text.secondary">
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" color="text.secondary">
                       {progress.mastered} / {progress.total} ({percentage.toFixed(1)}%)
-                    </MKTypography>
-                  </MKBox>
+                    </Typography>
+                  </Box>
                   
                   <LinearProgress
                     variant="determinate"
@@ -138,11 +137,11 @@ const JLPTProgressCard: React.FC<JLPTProgressCardProps> = ({ progressByLevel, va
                       }
                     }}
                   />
-                </MKBox>
+                </Box>
               );
             })}
-          </MKBox>
-        </MKBox>
+          </Box>
+        </Box>
       </Card>
     </motion.div>
   );

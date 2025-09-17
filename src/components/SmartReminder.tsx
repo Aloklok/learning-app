@@ -2,17 +2,15 @@
 // 智能提醒系统组件
 
 import React, { useState, useEffect } from 'react';
-import { Box, Card, CardContent, IconButton, Chip, Switch, FormControlLabel } from '@mui/material';
+import { Box, Card, CardContent, IconButton, Chip, Switch, FormControlLabel, Typography, Button } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CloseIcon from '@mui/icons-material/Close';
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
-import MKButton from '@mk_components/MKButton';
+// 继续使用已经导入的 Box, Typography, Button 组件
 
 interface ReminderSettings {
   enabled: boolean;
@@ -38,7 +36,7 @@ interface SmartReminderProps {
 }
 
 const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStudy }) => {
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
   const [settings, setSettings] = useState<ReminderSettings>({
     enabled: true,
     dailyGoal: 30,
@@ -154,9 +152,9 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
                   mr: 1, 
                   fontSize: 20 
                 }} />
-                <MKTypography variant="h6" color={isDarkMode ? 'white' : 'dark'}>
+                <Typography variant="h6" color={isDarkMode ? 'white' : 'text.primary'}>
                   {reminder.title}
-                </MKTypography>
+                </Typography>
                 <Chip 
                   label={reminder.priority} 
                   size="small" 
@@ -168,26 +166,26 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
                   }}
                 />
               </Box>
-              <MKTypography variant="body2" color="text.secondary" mb={2}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 {reminder.message}
-              </MKTypography>
-              <Box display="flex" gap={1}>
-                <MKButton 
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button 
                   size="small" 
                   variant="contained" 
                   color="primary"
                   onClick={() => handleReminderAction(reminder, 'accept')}
                 >
                   {reminder.type === 'review' ? '开始复习' : '开始学习'}
-                </MKButton>
-                <MKButton 
+                </Button>
+                <Button 
                   size="small" 
                   variant="outlined" 
                   color="secondary"
                   onClick={() => handleReminderAction(reminder, 'snooze')}
                 >
                   稍后提醒
-                </MKButton>
+                </Button>
               </Box>
             </Box>
             <IconButton 
@@ -213,11 +211,11 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
       mt: 2
     }}>
       <CardContent>
-        <MKTypography variant="h6" color={isDarkMode ? 'white' : 'dark'} mb={2}>
+        <Typography variant="h6" color={isDarkMode ? 'white' : 'text.primary'} sx={{ mb: 2 }}>
           提醒设置
-        </MKTypography>
+        </Typography>
         
-        <Box mb={3}>
+        <Box sx={{ mb: 3 }}>
           <FormControlLabel
             control={
               <Switch 
@@ -227,14 +225,14 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
               />
             }
             label={
-              <MKTypography variant="body2" color={isDarkMode ? '#e2e8f0' : '#4a5568'}>
+              <Typography variant="body2" color={isDarkMode ? '#e2e8f0' : '#4a5568'}>
                 启用提醒
-              </MKTypography>
+              </Typography>
             }
           />
         </Box>
 
-        <Box mb={3}>
+        <Box sx={{ mb: 3 }}>
           <FormControlLabel
             control={
               <Switch 
@@ -245,18 +243,18 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
               />
             }
             label={
-              <MKTypography variant="body2" color={isDarkMode ? '#e2e8f0' : '#4a5568'}>
+              <Typography variant="body2" color={isDarkMode ? '#e2e8f0' : '#4a5568'}>
                 智能提醒（基于学习习惯）
-              </MKTypography>
+              </Typography>
             }
           />
         </Box>
 
-        <Box mb={3}>
-          <MKTypography variant="body2" color={isDarkMode ? '#e2e8f0' : '#4a5568'} mb={1}>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="body2" color={isDarkMode ? '#e2e8f0' : '#4a5568'} sx={{ mb: 1 }}>
             提醒时间
-          </MKTypography>
-          <Box display="flex" gap={1} flexWrap="wrap">
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             {settings.reminderTimes.map((time, index) => (
               <Chip 
                 key={index}
@@ -270,9 +268,9 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
         </Box>
 
         <Box>
-          <MKTypography variant="body2" color={isDarkMode ? '#e2e8f0' : '#4a5568'} mb={1}>
+          <Typography variant="body2" color={isDarkMode ? '#e2e8f0' : '#4a5568'} sx={{ mb: 1 }}>
             提醒日期
-          </MKTypography>
+          </Typography>
           <Box display="flex" gap={1}>
             {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((day, index) => (
               <Chip 
@@ -298,16 +296,16 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
   const visibleReminders = pendingReminders.filter(shouldShowReminder);
 
   return (
-    <MKBox>
+    <Box>
       {/* 提醒开关和设置按钮 */}
-      <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-        <Box display="flex" alignItems="center">
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           {settings.enabled ? (
             <NotificationsIcon sx={{ color: isDarkMode ? '#63b3ed' : '#3182ce', mr: 1 }} />
           ) : (
             <NotificationsOffIcon sx={{ color: isDarkMode ? '#a0aec0' : '#718096', mr: 1 }} />
           )}
-          <MKTypography variant="h6" color={isDarkMode ? 'white' : 'dark'}>
+          <Typography variant="h6" color={isDarkMode ? 'white' : 'text.primary'}>
             学习提醒
             {visibleReminders.length > 0 && (
               <Chip 
@@ -317,15 +315,15 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
                 sx={{ ml: 1 }}
               />
             )}
-          </MKTypography>
+          </Typography>
         </Box>
-        <MKButton 
+        <Button 
           size="small" 
           variant="outlined"
           onClick={() => setShowSettings(!showSettings)}
         >
           设置
-        </MKButton>
+        </Button>
       </Box>
 
       {/* 待处理提醒列表 */}
@@ -351,9 +349,9 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
               color: isDarkMode ? '#4a5568' : '#a0aec0',
               mb: 1 
             }} />
-            <MKTypography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary">
               暂无待处理提醒
-            </MKTypography>
+            </Typography>
           </CardContent>
         </Card>
       )}
@@ -371,7 +369,7 @@ const SmartReminder: React.FC<SmartReminderProps> = ({ onStartReview, onStartStu
           </motion.div>
         )}
       </AnimatePresence>
-    </MKBox>
+    </Box>
   );
 };
 

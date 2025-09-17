@@ -1,16 +1,11 @@
 // src/components/ErrorBoundary.tsx (Enhanced)
 
 import React, { Component, type ReactNode, type ErrorInfo } from 'react';
-import { Box, Card, CardContent, Collapse, IconButton } from '@mui/material';
+import { Box, Card, CardContent, Collapse, IconButton, Typography, Button } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import BugReportIcon from '@mui/icons-material/BugReport';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
-import MKButton from '@mk_components/MKButton';
 
 interface Props {
   children: ReactNode;
@@ -33,31 +28,42 @@ const ErrorDisplay: React.FC<{
   onRetry: () => void;
   onReload: () => void;
   retryCount: number;
-}> = ({ error, errorInfo, onRetry, onReload, retryCount }) => {
+  title?: string;
+}> = ({ error, errorInfo, onRetry, onReload, retryCount, title }) => {
   // 移除useThemeMode依赖，使用系统主题检测
   const [isDarkMode] = React.useState(() => 
     window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
   );
   const [showDetails, setShowDetails] = React.useState(false);
 
-  const getErrorMessage = () => {
-    if (retryCount > 2) {
-      return "应用遇到了持续性错误，建议刷新页面或重启应用。";
-    }
-    return "抱歉，应用遇到了意外错误。您可以尝试重试或刷新页面。";
-  };
+  const errorMessage = retryCount > 2 
+    ? "应用遇到了持续性错误，建议刷新页面或重启应用。"
+    : "抱歉，应用遇到了意外错误。您可以尝试重试或刷新页面。";
 
   return (
-    <MKBox
+        <Box
       display="flex"
-      justifyContent="center"
       alignItems="center"
-      minHeight="400px"
-      p={3}
+      justifyContent="center"
+      minHeight="100vh"
       sx={{
-        background: isDarkMode 
-          ? 'linear-gradient(135deg, #121218 0%, #1a1a20 50%, #1e1e24 100%)'
-          : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+        p: 3,
+        background: isDarkMode
+          ? 'linear-gradient(135deg, #1e1e24 0%, #121218 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+        '::before': {
+          content: '""',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: isDarkMode
+            ? `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23${isDarkMode ? '242424' : 'f8f9fa'}' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+            : `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23${isDarkMode ? '242424' : 'f8f9fa'}' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          zIndex: -1,
+          opacity: 0.05
+        }
       }}
     >
       <Card sx={{ 
@@ -75,27 +81,25 @@ const ErrorDisplay: React.FC<{
             mb: 2 
           }} />
           
-          <MKTypography variant="h5" color={isDarkMode ? 'white' : 'dark'} mb={2}>
-            出现了一个错误
-          </MKTypography>
-          
-          <MKTypography variant="body1" color="text.secondary" mb={3}>
-            {getErrorMessage()}
-          </MKTypography>
+          <Typography variant="h5" color={isDarkMode ? 'white' : 'dark'} mb={2}>
+            {title || '糟糕！出错了'}
+          </Typography>
 
-          {retryCount > 0 && (
-            <MKTypography variant="body2" color="warning.main" mb={2}>
-              已重试 {retryCount} 次
-            </MKTypography>
-          )}
+          <Typography variant="body1" color="text.secondary" mb={3}>
+            {errorMessage}
+          </Typography>
 
-          {/* 错误详情展开 */}
+          {error && (
+            <Typography variant="body2" color="warning.main" mb={2}>
+              错误信息: {error.message}
+            </Typography>
+          )}          {/* 错误详情展开 */}
           {(import.meta.env.DEV || showDetails) && error && (
             <Box>
               <Box display="flex" alignItems="center" justifyContent="center" mb={1}>
-                <MKTypography variant="body2" color="text.secondary" mr={1}>
+                <Typography variant="body2" color="text.secondary" mr={1}>
                   错误详情
-                </MKTypography>
+                </Typography>
                 <IconButton 
                   size="small" 
                   onClick={() => setShowDetails(!showDetails)}
@@ -113,7 +117,7 @@ const ErrorDisplay: React.FC<{
                   borderRadius={1}
                   textAlign="left"
                 >
-                  <MKTypography variant="caption" component="pre" sx={{ 
+                  <Typography variant="caption" component="pre" sx={{ 
                     whiteSpace: 'pre-wrap',
                     fontFamily: 'monospace',
                     color: isDarkMode ? '#e2e8f0' : '#2d3748'
@@ -121,52 +125,50 @@ const ErrorDisplay: React.FC<{
                     {error.toString()}
                     {errorInfo && '\n\nComponent Stack:'}
                     {errorInfo?.componentStack}
-                  </MKTypography>
+                  </Typography>
                 </Box>
               </Collapse>
             </Box>
           )}
 
           <Box mt={3} display="flex" gap={2} justifyContent="center" flexWrap="wrap">
-            <MKButton
+            <Button
               variant="contained"
               color="primary"
-              startIcon={<RefreshIcon />}
               onClick={onRetry}
-              disabled={retryCount > 5}
+              sx={{ mr: 2 }}
             >
-              {retryCount > 2 ? '强制重试' : '重试'}
-            </MKButton>
-            
-            <MKButton
+              重试
+            </Button>
+            <Button
               variant="outlined"
               color="secondary"
-              startIcon={<BugReportIcon />}
+              startIcon={<RefreshIcon />}
               onClick={onReload}
             >
               刷新页面
-            </MKButton>
+            </Button>
 
             {import.meta.env.DEV && (
-              <MKButton
+              <Button
                 variant="text"
                 size="small"
                 onClick={() => setShowDetails(!showDetails)}
               >
                 {showDetails ? '隐藏' : '显示'}详情
-              </MKButton>
+              </Button>
             )}
           </Box>
 
           {/* 错误报告提示 */}
           <Box mt={3} p={2} bgcolor={isDarkMode ? 'rgba(255,255,255,0.02)' : 'grey.50'} borderRadius={1}>
-            <MKTypography variant="caption" color="text.secondary">
+            <Typography variant="caption" color="text.secondary">
               如果问题持续出现，请截图此页面并联系技术支持
-            </MKTypography>
+            </Typography>
           </Box>
         </CardContent>
       </Card>
-    </MKBox>
+    </Box>
   );
 };
 

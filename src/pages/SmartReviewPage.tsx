@@ -2,19 +2,17 @@
 // 智能复习页面
 
 import React, { useState, useEffect } from 'react';
-import { Box, Card, CardContent, Typography, LinearProgress, Chip } from '@mui/material';
+import { Box, Card, CardContent, Typography, LinearProgress, Chip, Button } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 import { MemoryAlgorithm } from '../utils/memoryAlgorithm';
 import type { VocabularyItem, GrammarItem } from '../types/models';
 import type { ReviewItem, ReviewResult } from '../utils/memoryAlgorithm';
 
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
-import MKButton from '@mk_components/MKButton';
+// No need to import Box, Typography, Button again as they are already imported above
 
 interface ReviewSession {
   items: ReviewItem[];
@@ -24,7 +22,7 @@ interface ReviewSession {
 }
 
 const SmartReviewPage: React.FC = () => {
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
   const [session, setSession] = useState<ReviewSession | null>(null);
   const [loading, setLoading] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -243,7 +241,7 @@ const SmartReviewPage: React.FC = () => {
 
   if (loading) {
     return (
-      <MKBox 
+      <Box 
         display="flex" 
         justifyContent="center" 
         alignItems="center" 
@@ -254,14 +252,14 @@ const SmartReviewPage: React.FC = () => {
             : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
         }}
       >
-        <MKTypography variant="h5">加载复习内容中...</MKTypography>
-      </MKBox>
+        <Typography variant="h5">加载复习内容中...</Typography>
+      </Box>
     );
   }
 
   if (!session || session.items.length === 0) {
     return (
-      <MKBox 
+      <Box 
         p={4}
         sx={{
           minHeight: '100vh',
@@ -272,17 +270,17 @@ const SmartReviewPage: React.FC = () => {
       >
         <Box textAlign="center" mt={8}>
           <TrendingUpIcon sx={{ fontSize: 80, color: isDarkMode ? '#68d391' : '#38a169', mb: 2 }} />
-          <MKTypography variant="h4" mb={2}>
+          <Typography variant="h4" mb={2}>
             今天没有需要复习的内容
-          </MKTypography>
-          <MKTypography variant="body1" color="text.secondary" mb={4}>
+          </Typography>
+          <Typography variant="body1" color="text.secondary" mb={4}>
             你已经完成了今天的复习任务，继续保持！
-          </MKTypography>
-          <MKButton variant="contained" color="primary" onClick={loadReviewData}>
+          </Typography>
+          <Button variant="contained" color="primary" onClick={loadReviewData}>
             重新检查
-          </MKButton>
+          </Button>
         </Box>
-      </MKBox>
+      </Box>
     );
   }
 
@@ -290,7 +288,7 @@ const SmartReviewPage: React.FC = () => {
   const progress = ((session.currentIndex + 1) / session.items.length) * 100;
 
   return (
-    <MKBox 
+    <Box 
       p={4}
       sx={{
         minHeight: '100vh',
@@ -302,14 +300,14 @@ const SmartReviewPage: React.FC = () => {
       {/* 进度条 */}
       <Box mb={4}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-          <MKTypography variant="h6">
+          <Typography variant="h6">
             复习进度: {session.currentIndex + 1} / {session.items.length}
-          </MKTypography>
-          <MKTypography variant="body2" color="text.secondary">
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
             正确率: {reviewStats.correctCount + reviewStats.incorrectCount > 0 
               ? Math.round((reviewStats.correctCount / (reviewStats.correctCount + reviewStats.incorrectCount)) * 100)
               : 0}%
-          </MKTypography>
+          </Typography>
         </Box>
         <LinearProgress 
           variant="determinate" 
@@ -338,17 +336,17 @@ const SmartReviewPage: React.FC = () => {
         {/* 控制按钮 */}
         <Box mt={4} display="flex" justifyContent="center" gap={2}>
           {!showAnswer ? (
-            <MKButton 
+            <Button 
               variant="contained" 
               color="primary" 
               size="large"
               onClick={() => setShowAnswer(true)}
             >
               显示答案
-            </MKButton>
+            </Button>
           ) : (
             <>
-              <MKButton 
+              <Button 
                 variant="contained" 
                 color="error" 
                 size="large"
@@ -356,16 +354,16 @@ const SmartReviewPage: React.FC = () => {
                 onClick={() => submitAnswer(false)}
               >
                 不认识
-              </MKButton>
-              <MKButton 
+              </Button>
+              <Button 
                 variant="contained" 
                 color="warning" 
                 size="large"
                 onClick={() => submitAnswer(true, 'hard')}
               >
                 有点难
-              </MKButton>
-              <MKButton 
+              </Button>
+              <Button 
                 variant="contained" 
                 color="success" 
                 size="large"
@@ -373,12 +371,12 @@ const SmartReviewPage: React.FC = () => {
                 onClick={() => submitAnswer(true, 'easy')}
               >
                 很简单
-              </MKButton>
+              </Button>
             </>
           )}
         </Box>
       </Box>
-    </MKBox>
+    </Box>
   );
 };
 

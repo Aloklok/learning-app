@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useDbOperations } from '../hooks/useDbOperations'; // Import the new hook
+import { useDbOperations } from '../hooks/useDbOperations';
 
 // Theme Context
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 
-// Material Kit Components
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
-import MKButton from '@mk_components/MKButton';
+// Material UI Components
+import { Box, Typography, Button, useTheme } from '@mui/material';
 
 // Material Kit Examples
 // 移除未使用的导入
@@ -32,7 +30,7 @@ const LibraryPage: React.FC = () => {
   const [importStatus, setImportStatus] = useState<{ success: boolean; message: string } | null>(null);
   const navigate = useNavigate();
   const hasFetched = useRef(false);
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
   const { getAllBooks, importBook } = useDbOperations(); // Use the new hook
 
   const containerVariants = {
@@ -88,10 +86,12 @@ const LibraryPage: React.FC = () => {
     navigate(`/book/${bookId}/lessons`);
   };
 
+  const theme = useTheme();
+
   return (
-    <MKBox 
-      p={{ xs: 2, md: 4 }}
+    <Box 
       sx={{
+        p: { xs: 2, md: 4 },
         minHeight: '100vh',
         background: isDarkMode 
           ? 'linear-gradient(135deg, #121218 0%, #1a1a20 50%, #1e1e24 100%)'
@@ -101,31 +101,29 @@ const LibraryPage: React.FC = () => {
       <motion.div variants={containerVariants} initial="hidden" animate="visible">
         {/* Header Section */}
         <motion.div variants={itemVariants}>
-          <MKBox 
-            variant="gradient" 
-            bgColor="info" 
-            borderRadius="lg" 
-            shadow="lg" 
-            p={4} 
-            mb={6}
+          <Box 
             sx={{
+              borderRadius: '12px',
+              boxShadow: theme.shadows[4],
+              p: 4,
+              mb: 6,
               background: isDarkMode
                 ? 'linear-gradient(135deg, #4a5568 0%, #553c7b 100%)'
                 : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             }}
           >
-            <MKBox display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
-              <MKBox>
-                <MKTypography variant="h2" color="white" fontWeight="bold" mb={1}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+              <Box>
+                <Typography variant="h2" color="white" sx={{ fontWeight: 'bold', mb: 1 }}>
                   我的教材库 📚
-                </MKTypography>
-                <MKTypography variant="h6" color="rgba(255,255,255,0.8)">
+                </Typography>
+                <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   管理你的学习教材，开始新的学习之旅
-                </MKTypography>
-              </MKBox>
-              <MKButton
+                </Typography>
+              </Box>
+              <Button
                 variant="contained"
-                color="white"
+                color="inherit"
                 size="large"
                 startIcon={<AddIcon />}
                 onClick={handleImportTextbook}
@@ -133,6 +131,7 @@ const LibraryPage: React.FC = () => {
                   background: 'rgba(255,255,255,0.2)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.3)',
+                  color: 'white',
                   '&:hover': {
                     background: 'rgba(255,255,255,0.3)',
                     transform: 'translateY(-2px)',
@@ -141,40 +140,40 @@ const LibraryPage: React.FC = () => {
                 }}
               >
                 导入新教材
-              </MKButton>
-            </MKBox>
-          </MKBox>
+              </Button>
+            </Box>
+          </Box>
         </motion.div>
 
         {/* Status Alert */}
         {importStatus && (
           <motion.div variants={itemVariants}>
-            <MKBox
-              p={3}
-              borderRadius="lg"
-              mb={4}
+            <Box
               sx={{
+                p: 3,
+                borderRadius: '12px',
+                mb: 4,
                 background: importStatus.success 
                   ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
                   : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                 color: 'white',
               }}
             >
-              <MKTypography variant="body1" color="white" fontWeight="medium">
+              <Typography variant="body1" sx={{ fontWeight: 500 }}>
                 {importStatus.message}
-              </MKTypography>
-            </MKBox>
+              </Typography>
+            </Box>
           </motion.div>
         )}
 
         {/* Books Grid */}
         <motion.div variants={itemVariants}>
           {books.length === 0 ? (
-            <MKBox
-              textAlign="center"
-              p={6}
-              borderRadius="lg"
+            <Box
               sx={{
+                textAlign: 'center',
+                p: 6,
+                borderRadius: '12px',
                 background: isDarkMode
                   ? 'linear-gradient(135deg, #242429 0%, #2a2a30 100%)'
                   : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
@@ -184,18 +183,24 @@ const LibraryPage: React.FC = () => {
               }}
             >
               <BookIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
-              <MKTypography variant="h5" color="text.secondary" mb={2}>
+              <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
                 还没有教材
-              </MKTypography>
-              <MKTypography variant="body1" color="text.secondary">
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
                 点击上方按钮导入你的第一本教材，开始学习之旅！
-              </MKTypography>
-            </MKBox>
+              </Typography>
+            </Box>
           ) : (
-            <MKBox 
-              display="grid" 
-              gridTemplateColumns={{ xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} 
-              gap={4}
+            <Box 
+              sx={{ 
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  lg: "repeat(3, 1fr)"
+                },
+                gap: 4
+              }}
             >
               {books.map((book) => (
                 <motion.div
@@ -204,16 +209,14 @@ const LibraryPage: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <MKBox
-                    variant="gradient"
-                    bgColor="white"
-                    borderRadius="xl"
-                    shadow="lg"
-                    p={4}
-                    height="100%"
-                    display="flex"
-                    flexDirection="column"
+                  <Box
                     sx={{
+                      p: 4,
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      borderRadius: '12px',
+                      boxShadow: theme.shadows[4],
                       background: isDarkMode
                         ? 'linear-gradient(135deg, #242429 0%, #2a2a30 100%)'
                         : 'white',
@@ -229,8 +232,8 @@ const LibraryPage: React.FC = () => {
                     }}
                   >
                       {/* Book Icon */}
-                      <MKBox textAlign="center" mb={3}>
-                        <MKBox
+                      <Box sx={{ textAlign: 'center', mb: 3 }}>
+                        <Box
                           sx={{
                             width: 80,
                             height: 80,
@@ -244,26 +247,26 @@ const LibraryPage: React.FC = () => {
                           }}
                         >
                           <LibraryBooksIcon sx={{ fontSize: 40, color: 'white' }} />
-                        </MKBox>
-                      </MKBox>
+                        </Box>
+                      </Box>
 
                       {/* Book Info */}
-                      <MKBox flexGrow={1} textAlign="center">
-                        <MKTypography variant="h5" fontWeight="bold" color="text.primary" mb={1}>
+                      <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
+                        <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'text.primary', mb: 1 }}>
                           {book.title}
-                        </MKTypography>
+                        </Typography>
                         {book.description && (
-                          <MKTypography variant="body2" color="text.secondary" mb={3}>
+                          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
                             {book.description}
-                          </MKTypography>
+                          </Typography>
                         )}
-                      </MKBox>
+                      </Box>
 
                       {/* Action Buttons */}
-                      <MKBox display="flex" gap={1} justifyContent="center">
-                        <MKButton
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                        <Button
                           variant="contained"
-                          color="info"
+                          color="primary"
                           size="small"
                           startIcon={<VisibilityIcon />}
                           onClick={() => handleViewLessons(book.id)}
@@ -277,10 +280,9 @@ const LibraryPage: React.FC = () => {
                           }}
                         >
                           查看课程
-                        </MKButton>
-                        <MKButton
+                        </Button>
+                        <Button
                           variant="outlined"
-                          color="info"
                           size="small"
                           startIcon={<EditIcon />}
                           sx={{
@@ -293,16 +295,16 @@ const LibraryPage: React.FC = () => {
                           }}
                         >
                           编辑
-                        </MKButton>
-                      </MKBox>
-                    </MKBox>
+                        </Button>
+                      </Box>
+                    </Box>
                 </motion.div>
               ))}
-            </MKBox>
+            </Box>
           )}
         </motion.div>
       </motion.div>
-    </MKBox>
+    </Box>
   );
 };
 

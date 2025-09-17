@@ -3,9 +3,8 @@ import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { Card } from '@mui/material';
 
-// Material Kit Components
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
+// MUI Components
+import { Box, Typography } from '@mui/material';
 
 // Types
 import type { DashboardStats } from '../../types/models';
@@ -37,13 +36,13 @@ const HeaderCard: React.FC<HeaderCardProps> = ({ variants }) => {
           }
         }}
       >
-        <MKBox p={4} position="relative" zIndex={1}>
-          <MKTypography 
+        <Box sx={{ p: 4, position: "relative", zIndex: 1 }}>
+          <Typography 
             variant="h3" 
             fontWeight="bold" 
             color="white" 
-            mb={1}
             sx={{ 
+              mb: 1,
               background: 'linear-gradient(45deg, #fff 30%, #f0f0f0 90%)',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
@@ -51,16 +50,17 @@ const HeaderCard: React.FC<HeaderCardProps> = ({ variants }) => {
             }}
           >
             早上好, Alok! 👋
-          </MKTypography>
-          <MKTypography 
+          </Typography>
+          <Typography 
             variant="h6" 
-            color="rgba(255,255,255,0.9)" 
-            fontWeight="normal"
-            sx={{ opacity: 0.9 }}
+            sx={{ 
+              color: 'rgba(255,255,255,0.9)',
+              opacity: 0.9
+            }}
           >
             今天也是充满活力的一天，继续你的学习之旅吧！
-          </MKTypography>
-        </MKBox>
+          </Typography>
+        </Box>
       </Card>
     </motion.div>
   );

@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import MKBox from '@mk_components/MKBox';
-import MKButton from '@mk_components/MKButton';
+import { Box, Button } from '@mui/material';
 import type { Lesson } from '../types/models';
 
 interface LessonNavigationProps {
@@ -17,20 +16,20 @@ const LessonNavigation: React.FC<LessonNavigationProps> = React.memo(({ neighbor
   }
 
   return (
-    <MKBox display="flex" justifyContent="center" gap={2} mb={4} flexWrap="wrap">
+    <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 4, flexWrap: "wrap" }}>
       {neighborLessons.map(lesson => (
-        <MKButton 
+        <Button 
           key={lesson.id} 
           component={Link} 
           to={`/learn/${lesson.id}`} 
           variant={lesson.id === currentLessonId ? "contained" : "outlined"}
-          color="info"
+          color="primary"
           size="large"
         >
           {`第${lesson.lesson_number}课`}
-        </MKButton>
+        </Button>
       ))}
-    </MKBox>
+    </Box>
   );
 });
 

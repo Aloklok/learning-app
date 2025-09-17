@@ -1,12 +1,12 @@
 import React from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 import MinimizeIcon from '@mui/icons-material/Minimize';
 import CloseIcon from '@mui/icons-material/Close';
 import CropSquareIcon from '@mui/icons-material/CropSquare';
 
 const CustomTitleBar: React.FC = () => {
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
 
   const handleMinimize = () => {
     if (window.electronAPI) {

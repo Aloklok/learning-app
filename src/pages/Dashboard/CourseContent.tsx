@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Material Kit Components
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
+// MUI Components
+import { Box, Typography } from '@mui/material';
 
 // Custom Hooks & Components
 import { useDatabase } from '../../hooks/useDatabase';
@@ -61,15 +60,15 @@ const CourseContent: React.FC = () => {
   if (!lessonId && learningStateLoading) {
     return (
       <motion.div variants={containerVariants} initial="hidden" animate="visible">
-        <MKBox
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="400px"
-          p={6}
-          borderRadius="xl"
+        <Box
           sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "400px",
+            p: 6,
+            borderRadius: "xl",
             background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
             border: '1px solid rgba(0,0,0,0.05)',
           }}
@@ -81,26 +80,25 @@ const CourseContent: React.FC = () => {
           >
             <SchoolIcon sx={{ fontSize: 60, color: 'primary.main', mb: 3 }} />
           </motion.div>
-          <MKTypography variant="h5" color="text.primary" fontWeight="bold" mb={2}>
+          <Typography variant="h5" color="text.primary" fontWeight="bold" sx={{ mb: 2 }}>
             正在加载课程...
-          </MKTypography>
-          <MKTypography variant="body1" color="text.secondary">
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
             请稍候，我们正在为您准备学习内容
-          </MKTypography>
-        </MKBox>
+          </Typography>
+        </Box>
       </motion.div>
     );
   }
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible">
-      <MKBox
-        bgColor="white"
-        borderRadius="xl"
-        shadow="lg"
-        p={{ xs: 2, sm: 3 }}
-        mt={4}
+      <Box
         sx={{
+          borderRadius: "xl",
+          boxShadow: 4,
+          p: { xs: 2, sm: 3 },
+          mt: 4,
           background: 'white',
           border: '1px solid rgba(0,0,0,0.05)',
           backdropFilter: 'blur(10px)',
@@ -123,7 +121,7 @@ const CourseContent: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
-      </MKBox>
+      </Box>
     </motion.div>
   );
 };

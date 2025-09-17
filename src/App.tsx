@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from './contexts/ThemeProvider';
+import { ThemeProvider } from './theme/ThemeProvider';
 
 // 导入布局和页面
 import MainLayout from './layouts/MainLayout';
@@ -29,6 +29,7 @@ function App() {
               <Route path="/" element={<DashboardPage />} />
               
               {/* 为了让课程内导航能更新URL，我们增加一个带参数的路由，它也渲染同一个组件 */}
+              <Route path="/learn" element={<DashboardPage />} />
               <Route path="/learn/:lessonId" element={<DashboardPage />} />
               <Route path="/course/:lessonId" element={<DashboardPage />} />
 

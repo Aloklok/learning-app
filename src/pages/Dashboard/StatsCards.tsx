@@ -2,12 +2,10 @@ import React from 'react';
 import { Grid, Card, Box } from '@mui/material';
 import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
-import { useThemeMode } from '../../hooks/useThemeMode';
+import { useAppTheme } from '../../hooks/useAppTheme';
 
-// Material Kit 2 提供的预制高级组件
-import DefaultCounterCard from '@mk_examples/Cards/CounterCards/DefaultCounterCard';
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
+// MUI Components
+import { Typography } from '@mui/material';
 
 // Icons
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
@@ -23,7 +21,7 @@ interface StatsCardsProps {
 }
 
 const StatsCards: React.FC<StatsCardsProps> = ({ stats, variants }) => {
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
   const cardData = [
     {
       icon: <AutoStoriesIcon />,
@@ -82,14 +80,16 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats, variants }) => {
                 }
               }}
             >
-              <MKBox p={4} height="100%" display="flex" flexDirection="column">
+              <Box sx={{ p: 4, height: "100%", display: "flex", flexDirection: "column" }}>
                 {/* Icon with gradient background */}
-                <MKBox 
-                  mb={3} 
-                  display="flex" 
-                  justifyContent="center"
+                <Box 
+                  sx={{
+                    mb: 3, 
+                    display: "flex", 
+                    justifyContent: "center"
+                  }}
                 >
-                  <MKBox
+                  <Box
                     sx={{
                       width: 80,
                       height: 80,
@@ -113,12 +113,12 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats, variants }) => {
                     <Box sx={{ fontSize: 36, color: 'primary.main', zIndex: 1 }}>
                       {card.icon}
                     </Box>
-                  </MKBox>
-                </MKBox>
+                  </Box>
+                </Box>
 
                 {/* Count with animation */}
-                <MKBox textAlign="center" mb={2}>
-                  <MKTypography 
+                <Box sx={{ textAlign: "center", mb: 2 }}>
+                  <Typography 
                     variant="h2" 
                     fontWeight="bold"
                     sx={{
@@ -129,41 +129,37 @@ const StatsCards: React.FC<StatsCardsProps> = ({ stats, variants }) => {
                       fontSize: { xs: '2.5rem', md: '3rem' }
                     }}
                   >
-                    <DefaultCounterCard
-                      count={card.count}
-                      duration={2}
-                    />
-                  </MKTypography>
+                    {/* 注意：DefaultCounterCard 需要用自定义计数器组件替换 */}
+                    {card.count}
+                  </Typography>
                   {card.total && (
-                    <MKTypography 
+                    <Typography 
                       variant="h6" 
-                      color="text.secondary"
-                      sx={{ opacity: 0.7 }}
+                      sx={{ color: 'text.secondary', opacity: 0.7 }}
                     >
                       / {card.total}
-                    </MKTypography>
+                    </Typography>
                   )}
-                </MKBox>
+                </Box>
 
                 {/* Title and description */}
-                <MKBox textAlign="center" mt="auto">
-                  <MKTypography 
+                <Box sx={{ textAlign: "center", mt: "auto" }}>
+                  <Typography 
                     variant="h5" 
                     fontWeight="bold" 
                     color="text.primary" 
-                    mb={1}
+                    sx={{ mb: 1 }}
                   >
                     {card.title}
-                  </MKTypography>
-                  <MKTypography 
+                  </Typography>
+                  <Typography 
                     variant="body1" 
-                    color="text.secondary"
-                    sx={{ opacity: 0.8 }}
+                    sx={{ color: 'text.secondary', opacity: 0.8 }}
                   >
                     {card.description}
-                  </MKTypography>
-                </MKBox>
-              </MKBox>
+                  </Typography>
+                </Box>
+              </Box>
             </Card>
           </motion.div>
         </Grid>

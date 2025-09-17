@@ -4,12 +4,10 @@ import React, { useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 // Theme Context
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 
-// Material Kit Components
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
-import MKButton from '@mk_components/MKButton';
+// MUI Components
+import { Box, Typography, Button } from '@mui/material';
 
 // Custom Components
 import TextReader from './TextReader';
@@ -36,7 +34,7 @@ interface PureCourseViewProps {
 }
 
 const PureCourseView: React.FC<PureCourseViewProps> = ({ lessonId }) => {
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -74,52 +72,52 @@ const PureCourseView: React.FC<PureCourseViewProps> = ({ lessonId }) => {
 
   if (lessonLoading) {
     return (
-      <MKBox 
+      <Box 
         display="flex" 
         flexDirection="column"
         justifyContent="center" 
         alignItems="center"
         p={8}
-        borderRadius="lg"
         sx={{
           minHeight: '100vh',
+          borderRadius: 'lg',
           background: isDarkMode 
             ? 'linear-gradient(135deg, #121218 0%, #1a1a20 50%, #1e1e24 100%)'
             : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
         }}
       >
-        <MKTypography variant="h5" color="text.primary" fontWeight="bold" mb={2}>
+        <Typography variant="h5" color="text.primary" fontWeight="bold" sx={{ mb: 2 }}>
           正在加载课程内容...
-        </MKTypography>
-      </MKBox>
+        </Typography>
+      </Box>
     );
   }
 
   if (!currentLesson) {
     return (
-      <MKBox 
+      <Box 
         display="flex" 
         flexDirection="column"
         justifyContent="center" 
         alignItems="center"
         p={8}
-        borderRadius="lg"
         sx={{
           minHeight: '100vh',
+          borderRadius: 'lg',
           background: isDarkMode 
             ? 'linear-gradient(135deg, #121218 0%, #1a1a20 50%, #1e1e24 100%)'
             : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
         }}
       >
-        <MKTypography variant="h5" fontWeight="bold" mb={2}>
+        <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
           课程未找到
-        </MKTypography>
-      </MKBox>
+        </Typography>
+      </Box>
     );
   }
 
   return (
-    <MKBox 
+    <Box 
       sx={{
         minHeight: '100vh',
         background: isDarkMode 
@@ -130,16 +128,16 @@ const PureCourseView: React.FC<PureCourseViewProps> = ({ lessonId }) => {
     >
       {/* Back Button */}
       {showBackButton && (
-        <MKBox mb={3}>
-          <MKButton
+        <Box sx={{ mb: 3 }}>
+          <Button
             variant="outlined"
-            color={isDarkMode ? "white" : "dark"}
+            color={isDarkMode ? "inherit" : "primary"}
             size="medium"
             startIcon={<ArrowBackIcon />}
             onClick={handleBackToLibrary}
             sx={{
               border: isDarkMode ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(0,0,0,0.3)',
-              color: isDarkMode ? 'white' : 'dark',
+              color: isDarkMode ? 'white' : 'text.primary',
               '&:hover': {
                 background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                 border: isDarkMode ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(0,0,0,0.5)',
@@ -147,76 +145,78 @@ const PureCourseView: React.FC<PureCourseViewProps> = ({ lessonId }) => {
             }}
           >
             返回课程列表
-          </MKButton>
-        </MKBox>
+          </Button>
+        </Box>
       )}
 
       {/* Course Title */}
-      <MKBox mb={4} textAlign="center">
-        <MKTypography 
+      <Box sx={{ mb: 4, textAlign: "center" }}>
+        <Typography 
           variant="h3" 
           fontWeight="bold" 
-          color={isDarkMode ? 'white' : 'dark'}
-          mb={1}
+          color={isDarkMode ? 'white' : 'text.primary'}
+          sx={{ mb: 1 }}
         >
           {currentLesson.title}
-        </MKTypography>
-        <MKTypography 
+        </Typography>
+        <Typography 
           variant="h6" 
           color={isDarkMode ? 'rgba(255,255,255,0.7)' : 'text.secondary'}
         >
           第 {currentLesson.lesson_number} 课
-        </MKTypography>
-      </MKBox>
+        </Typography>
+      </Box>
 
       {/* Course Sections */}
-      <MKBox display="flex" flexDirection="column" gap={4}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
         {/* Dialogue Section */}
-        <MKBox
-          borderRadius="xl"
-          shadow="md"
-          p={4}
+        <Box
           sx={{
+            borderRadius: 'xl',
+            boxShadow: 3,
+            p: 4,
             background: 'linear-gradient(135deg, #4a5568 0%, #553c7b 100%)',
             color: 'white',
           }}
         >
-          <MKBox display="flex" alignItems="center" gap={2} mb={3}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
             <RecordVoiceOverIcon sx={{ fontSize: 32 }} />
-            <MKTypography variant="h4" fontWeight="bold">
+            <Typography variant="h4" fontWeight="bold">
               课文对话 💬
-            </MKTypography>
-          </MKBox>
+            </Typography>
+          </Box>
           {basicTexts.length > 0 ? (
             <TextReader texts={basicTexts} />
           ) : (
-            <MKTypography color="rgba(255,255,255,0.8)">
+            <Typography color="rgba(255,255,255,0.8)">
               暂无内容
-            </MKTypography>
+            </Typography>
           )}
-        </MKBox>
+        </Box>
 
         {/* Vocabulary Section */}
-        <MKBox
-          borderRadius="xl"
-          shadow="md"
-          p={4}
+        <Box
           sx={{
+            borderRadius: 'xl',
+            boxShadow: 3,
+            p: 4,
             background: 'linear-gradient(135deg, #3182ce 0%, #2c5282 100%)',
             color: 'white',
           }}
         >
-          <MKBox display="flex" alignItems="center" gap={2} mb={3}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
             <AutoStoriesIcon sx={{ fontSize: 32 }} />
-            <MKTypography variant="h4" fontWeight="bold">
+            <Typography variant="h4" fontWeight="bold">
               新单词 📖
-            </MKTypography>
-          </MKBox>
+            </Typography>
+          </Box>
           {vocabulary && vocabulary.length > 0 ? (
-            <MKBox 
-              display="grid" 
-              gridTemplateColumns={{ xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} 
-              gap={3}
+            <Box 
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" },
+                gap: 3
+              }}
             >
               {vocabulary.map((word) => (
                 <div key={word.id}>
@@ -226,32 +226,32 @@ const PureCourseView: React.FC<PureCourseViewProps> = ({ lessonId }) => {
                   />
                 </div>
               ))}
-            </MKBox>
+            </Box>
           ) : (
-            <MKTypography color="rgba(255,255,255,0.8)">
+            <Typography color="rgba(255,255,255,0.8)">
               暂无内容
-            </MKTypography>
+            </Typography>
           )}
-        </MKBox>
+        </Box>
         
         {/* Grammar Section */}
-        <MKBox
-          borderRadius="xl"
-          shadow="md"
-          p={4}
+        <Box
           sx={{
+            borderRadius: 'xl',
+            boxShadow: 3,
+            p: 4,
             background: 'linear-gradient(135deg, #805ad5 0%, #9f7aea 100%)',
             color: 'white',
           }}
         >
-          <MKBox display="flex" alignItems="center" gap={2} mb={3}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
             <PsychologyIcon sx={{ fontSize: 32 }} />
-            <MKTypography variant="h4" fontWeight="bold">
+            <Typography variant="h4" fontWeight="bold">
               语法知识点 ✍️
-            </MKTypography>
-          </MKBox>
+            </Typography>
+          </Box>
           {grammar && grammar.length > 0 ? (
-            <MKBox display="flex" flexDirection="column" gap={3}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
               {grammar.map((item) => (
                 <div key={item.id}>
                   <GrammarReviewCard 
@@ -260,57 +260,57 @@ const PureCourseView: React.FC<PureCourseViewProps> = ({ lessonId }) => {
                   />
                 </div>
               ))}
-            </MKBox>
+            </Box>
           ) : (
-            <MKTypography color="rgba(255,255,255,0.8)">
+            <Typography color="rgba(255,255,255,0.8)">
               暂无内容
-            </MKTypography>
+            </Typography>
           )}
-        </MKBox>
+        </Box>
 
         {/* Applied Texts Section */}
         {appliedTexts.length > 0 && (
-          <MKBox
-            borderRadius="xl"
-            shadow="md"
-            p={4}
+          <Box
             sx={{
+              borderRadius: 'xl',
+              boxShadow: 3,
+              p: 4,
               background: 'linear-gradient(135deg, #38a169 0%, #2f855a 100%)',
               color: 'white',
             }}
           >
-            <MKBox display="flex" alignItems="center" gap={2} mb={3}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
               <MenuBookIcon sx={{ fontSize: 32 }} />
-              <MKTypography variant="h4" fontWeight="bold">
+              <Typography variant="h4" fontWeight="bold">
                 应用文本 📝
-              </MKTypography>
-            </MKBox>
+              </Typography>
+            </Box>
             <TextReader texts={appliedTexts} />
-          </MKBox>
+          </Box>
         )}
 
         {/* Articles Section */}
         {articles && articles.length > 0 && (
-          <MKBox
-            borderRadius="xl"
-            shadow="md"
-            p={4}
+          <Box
             sx={{
+              borderRadius: 'xl',
+              boxShadow: 3,
+              p: 4,
               background: 'linear-gradient(135deg, #d69e2e 0%, #b7791f 100%)',
               color: 'white',
             }}
           >
-            <MKBox display="flex" alignItems="center" gap={2} mb={3}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
               <ArticleIcon sx={{ fontSize: 32 }} />
-              <MKTypography variant="h4" fontWeight="bold">
+              <Typography variant="h4" fontWeight="bold">
                 相关文章 📰
-              </MKTypography>
-            </MKBox>
+              </Typography>
+            </Box>
             <ArticleList articles={articles} />
-          </MKBox>
+          </Box>
         )}
-      </MKBox>
-    </MKBox>
+      </Box>
+    </Box>
   );
 };
 

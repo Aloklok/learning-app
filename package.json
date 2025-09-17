@@ -30,8 +30,9 @@
       {
         "from": "database/schema.sql",
         "to": "database/schema.sql"
-      }, "database/schema.sql",
-       "database/migrations/**/*"
+      },
+      "database/schema.sql",
+      "database/migrations/**/*"
     ],
     "asarUnpack": [
       "**/node_modules/better-sqlite3/**/*"

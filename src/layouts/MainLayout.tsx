@@ -16,7 +16,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 
 import AIAssistant from '../components/AIAssistant';
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 import { useLayout, useAI } from '../store/appStore';
 
 const navItems = [
@@ -30,7 +30,7 @@ const MainLayout: React.FC = () => {
   const { isOpen: aiOpen, setOpen: setAiOpen } = useAI();
   const muiTheme = useTheme();
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
-  const { isDarkMode, toggleTheme } = useThemeMode();
+  const { isDarkMode, toggleTheme } = useAppTheme();
 
   // 自动折叠侧边栏在小屏幕上
   useEffect(() => {

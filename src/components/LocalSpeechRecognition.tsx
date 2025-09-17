@@ -18,7 +18,7 @@ import MicOffIcon from '@mui/icons-material/MicOff';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 
 interface LocalSpeechRecognitionProps {
   targetText: string;
@@ -54,7 +54,7 @@ const LocalSpeechRecognition: React.FC<LocalSpeechRecognitionProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isSupported, setIsSupported] = useState(!!window.speech);
   
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
 
   // 计算发音准确度
   const calculateAccuracy = useCallback((spoken: string, target: string): number => {

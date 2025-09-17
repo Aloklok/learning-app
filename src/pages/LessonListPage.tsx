@@ -3,12 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 // Theme Context
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 
-// Material Kit Components
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
-import MKButton from '@mk_components/MKButton';
+// MUI Components
+import { Box, Typography, Button } from '@mui/material';
 
 // Icons
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -29,7 +27,7 @@ const LessonListPage: React.FC = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [bookTitle, setBookTitle] = useState('加载中...');
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<number>>(new Set());
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -87,9 +85,9 @@ const LessonListPage: React.FC = () => {
   };
 
   return (
-    <MKBox 
-      p={{ xs: 2, md: 4 }}
+    <Box 
       sx={{
+        p: { xs: 2, md: 4 },
         minHeight: '100vh',
         background: isDarkMode 
           ? 'linear-gradient(135deg, #121218 0%, #1a1a20 50%, #1e1e24 100%)'
@@ -99,31 +97,29 @@ const LessonListPage: React.FC = () => {
       <motion.div variants={containerVariants} initial="hidden" animate="visible">
         {/* Header Section */}
         <motion.div variants={itemVariants}>
-          <MKBox 
-            variant="gradient" 
-            bgColor="success" 
-            borderRadius="lg" 
-            shadow="lg" 
-            p={4} 
-            mb={6}
+          <Box 
             sx={{
+              p: 4,
+              mb: 6,
+              borderRadius: 'lg',
+              boxShadow: 4,
               background: isDarkMode
                 ? 'linear-gradient(135deg, #3182ce 0%, #2c5282 100%)'
                 : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
             }}
           >
-            <MKBox display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
-              <MKBox>
-                <MKTypography variant="h2" color="white" fontWeight="bold" mb={1}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
+              <Box>
+                <Typography variant="h2" color="white" fontWeight="bold" sx={{ mb: 1 }}>
                   {bookTitle} 📖
-                </MKTypography>
-                <MKTypography variant="h6" color="rgba(255,255,255,0.8)">
+                </Typography>
+                <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                   选择课程开始学习
-                </MKTypography>
-              </MKBox>
-              <MKButton
+                </Typography>
+              </Box>
+              <Button
                 variant="contained"
-                color="white"
+                color="inherit"
                 size="large"
                 startIcon={<ArrowBackIcon />}
                 onClick={handleBackToLibrary}
@@ -131,6 +127,7 @@ const LessonListPage: React.FC = () => {
                   background: 'rgba(255,255,255,0.2)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.3)',
+                  color: 'white',
                   '&:hover': {
                     background: 'rgba(255,255,255,0.3)',
                     transform: 'translateY(-2px)',
@@ -139,19 +136,19 @@ const LessonListPage: React.FC = () => {
                 }}
               >
                 返回教材库
-              </MKButton>
-            </MKBox>
-          </MKBox>
+              </Button>
+            </Box>
+          </Box>
         </motion.div>
 
         {/* Lessons List */}
         <motion.div variants={itemVariants}>
           {lessons.length === 0 ? (
-            <MKBox
-              textAlign="center"
-              p={6}
-              borderRadius="lg"
+            <Box
               sx={{
+                textAlign: "center",
+                p: 6,
+                borderRadius: "lg",
                 background: isDarkMode
                   ? 'linear-gradient(135deg, #242429 0%, #2a2a30 100%)'
                   : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
@@ -161,15 +158,15 @@ const LessonListPage: React.FC = () => {
               }}
             >
               <BookIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
-              <MKTypography variant="h5" color="text.secondary" mb={2}>
+              <Typography variant="h5" color="text.secondary" sx={{ mb: 2 }}>
                 还没有课程
-              </MKTypography>
-              <MKTypography variant="body1" color="text.secondary">
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
                 这本书还没有添加任何课程内容。
-              </MKTypography>
-            </MKBox>
+              </Typography>
+            </Box>
           ) : (
-            <MKBox display="flex" flexDirection="column" gap={3}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
               {lessons.map((lesson) => (
                 <motion.div
                   key={lesson.id}
@@ -177,13 +174,11 @@ const LessonListPage: React.FC = () => {
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                 >
-                  <MKBox
-                    variant="gradient"
-                    bgColor="white"
-                    borderRadius="xl"
-                    shadow="md"
-                    p={4}
+                  <Box
                     sx={{
+                      p: 4,
+                      borderRadius: 'xl',
+                      boxShadow: 2,
                       background: isDarkMode
                         ? 'linear-gradient(135deg, #242429 0%, #2a2a30 100%)'
                         : 'white',
@@ -199,10 +194,10 @@ const LessonListPage: React.FC = () => {
                     }}
                     onClick={() => handleViewLesson(lesson.id)}
                   >
-                    <MKBox display="flex" alignItems="center" justifyContent="space-between">
-                      <MKBox display="flex" alignItems="center" gap={3}>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
                         {/* Lesson Number Badge */}
-                        <MKBox
+                        <Box
                           sx={{
                             width: 60,
                             height: 60,
@@ -219,23 +214,23 @@ const LessonListPage: React.FC = () => {
                           }}
                         >
                           {lesson.lesson_number}
-                        </MKBox>
+                        </Box>
 
                         {/* Lesson Info */}
-                        <MKBox>
-                          <MKTypography variant="h5" fontWeight="bold" color="text.primary" mb={1}>
+                        <Box>
+                          <Typography variant="h5" fontWeight="bold" color="text.primary" sx={{ mb: 1 }}>
                             第 {lesson.lesson_number} 课: {lesson.title}
-                          </MKTypography>
-                          <MKTypography variant="body2" color="text.secondary">
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
                             {completedLessonIds.has(lesson.id) ? '已完成' : '待学习'}
-                          </MKTypography>
-                        </MKBox>
-                      </MKBox>
+                          </Typography>
+                        </Box>
+                      </Box>
 
-                      <MKBox display="flex" alignItems="center" gap={2}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         {/* Completion Status */}
                         {completedLessonIds.has(lesson.id) && (
-                          <MKBox
+                          <Box
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
@@ -248,14 +243,14 @@ const LessonListPage: React.FC = () => {
                             }}
                           >
                             <CheckCircleIcon sx={{ fontSize: 20 }} />
-                            <MKTypography variant="caption" fontWeight="bold">
+                            <Typography variant="caption" fontWeight="bold">
                               已完成
-                            </MKTypography>
-                          </MKBox>
+                            </Typography>
+                          </Box>
                         )}
 
                         {/* Play Button */}
-                        <MKBox
+                        <Box
                           sx={{
                             width: 50,
                             height: 50,
@@ -273,17 +268,17 @@ const LessonListPage: React.FC = () => {
                           }}
                         >
                           <PlayCircleOutlineIcon sx={{ fontSize: 24 }} />
-                        </MKBox>
-                      </MKBox>
-                    </MKBox>
-                  </MKBox>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Box>
                 </motion.div>
               ))}
-            </MKBox>
+            </Box>
           )}
         </motion.div>
       </motion.div>
-    </MKBox>
+    </Box>
   );
 };
 

@@ -8,7 +8,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TimerIcon from '@mui/icons-material/Timer';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SchoolIcon from '@mui/icons-material/School';
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 
 import MKBox from '@mk_components/MKBox';
 import MKTypography from '@mk_components/MKTypography';
@@ -44,7 +44,7 @@ interface StudyStatsPanelProps {
 }
 
 const StudyStatsPanel: React.FC<StudyStatsPanelProps> = ({ stats, loading = false }) => {
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
   const [animatedStats, setAnimatedStats] = useState<StudyStats | null>(null);
 
   // 默认统计数据

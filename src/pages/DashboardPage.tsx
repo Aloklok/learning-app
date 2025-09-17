@@ -4,11 +4,10 @@ import { CircularProgress } from '@mui/material';
 import { motion } from 'framer-motion';
 
 // Theme Context
-import { useThemeMode } from '../hooks/useThemeMode';
+import { useAppTheme } from '../hooks/useAppTheme';
 
-// Material Kit Components
-import MKBox from '@mk_components/MKBox';
-import MKTypography from '@mk_components/MKTypography';
+// MUI Components
+import { Box, Typography } from '@mui/material';
 
 // Custom Hooks & Store
 import { useDashboardStore } from '../store/dashboardStore';
@@ -23,7 +22,7 @@ import CourseContent from './Dashboard/CourseContent';
 
 const DashboardPage: React.FC = () => {
   const { stats, loading: statsLoading, fetchStats } = useDashboardStore();
-  const { isDarkMode } = useThemeMode();
+  const { isDarkMode } = useAppTheme();
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -43,30 +42,30 @@ const DashboardPage: React.FC = () => {
 
   if (statsLoading) {
     return (
-      <MKBox 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        height="calc(100vh - 90px)"
+      <Box 
         sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "calc(100vh - 90px)",
           background: isDarkMode 
             ? 'linear-gradient(135deg, #121218 0%, #1a1a20 50%, #1e1e24 100%)'
             : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
         }}
       >
         <CircularProgress />
-      </MKBox>
+      </Box>
     );
   }
 
   if (!stats) {
-    return <MKTypography sx={{ textAlign: 'center', mt: 4 }}>无法加载统计数据。</MKTypography>;
+    return <Typography sx={{ textAlign: 'center', mt: 4 }}>无法加载统计数据。</Typography>;
   }
 
   return (
-    <MKBox 
-      p={{ xs: 2, md: 4 }}
+    <Box 
       sx={{
+        p: { xs: 2, md: 4 },
         minHeight: '100vh',
         background: isDarkMode 
           ? 'linear-gradient(135deg, #121218 0%, #1a1a20 50%, #1e1e24 100%)'
@@ -76,24 +75,24 @@ const DashboardPage: React.FC = () => {
       <motion.div variants={containerVariants} initial="hidden" animate="visible">
         
         {/* === 1. Top Header Card === */}
-        <MKBox mb={6}>
+        <Box sx={{ mb: 6 }}>
           <HeaderCard stats={stats} variants={itemVariants} />
-        </MKBox>
+        </Box>
 
         {/* === 2. Stats Info Cards === */}
         <StatsCards stats={stats} variants={itemVariants} />
 
         {/* === 3. JLPT Progress Card === */}
-        <MKBox mb={6}>
+        <Box sx={{ mb: 6 }}>
           <JLPTProgressCard progressByLevel={stats.progressByLevel} variants={itemVariants} />
-        </MKBox>
+        </Box>
 
       </motion.div>
 
       {/* === 4. Main Course Content Area === */}
       <CourseContent />
       
-    </MKBox>
+    </Box>
   );
 };
 
